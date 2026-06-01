@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>移行運おみくじ</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:"Helvetica Neue",sans-serif;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at top,
+        #e9f7ff 0%,
+        #d9efff 40%,
+        #f7fbff 100%);
+    min-height:100vh;
+    color:#333;
+}
+
+.container{
+    max-width:1100px;
+    margin:auto;
+    text-align:center;
+    padding:30px 20px 100px;
+    position:relative;
+}
+
+/* タイトル */
+
+h1{
+    font-size:3rem;
+    color:#0078C3;
+    margin-bottom:25px;
+    letter-spacing:4px;
+    font-weight:900;
+}
+
+/* 上部おみくじ */
+
+.top-omikuji{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:120px;
+    margin-bottom:20px;
+}
+
+.omikuji-icon{
+    width:110px;
+    animation:float 3s ease-in-out infinite;
+}
+
+.omikuji-icon:nth-child(2){
+    animation-delay:1s;
+}
+
+/* キャラクター */
+
+.character-area{
+    position:relative;
+    height:420px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+}
+
+.character{
+    width:720px;
+    max-width:90%;
+    z-index:5;
+    position:relative;
+    animation:float 3s ease-in-out infinite;
+    transition:all .3s ease;
+}
+
+/* ふわふわ */
+
+@keyframes float{
+    0%{transform:translateY(0);}
+    50%{transform:translateY(-10px);}
+    100%{transform:translateY(0);}
+}
+
+/* 振る */
+
+.shake{
+    animation:shake .8s infinite;
+}
+
+@keyframes shake{
+    0%{transform:rotate(0deg);}
+    20%{transform:rotate(4deg);}
+    40%{transform:rotate(-5deg);}
+    60%{transform:rotate(5deg);}
+    80%{transform:rotate(-4deg);}
+    100%{transform:rotate(0deg);}
+}
+
+/* 超大吉ゴールド */
+
+.gold{
+    filter:
+        drop-shadow(0 0 10px gold)
+        drop-shadow(0 0 25px orange)
+        brightness(1.15);
+    animation:goldGlow 1s infinite alternate;
+}
+
+@keyframes goldGlow{
+    from{
+        filter:
+        drop-shadow(0 0 10px gold)
+        drop-shadow(0 0 25px orange);
+    }
+    to{
+        filter:
+        drop-shadow(0 0 20px gold)
+        drop-shadow(0 0 45px yellow);
+    }
+}
+
+/* 結果 */
+
+.result-box{
+    width:100%;
+    max-width:760px;
+    margin:auto;
+    background:rgba(255,255,255,.88);
+    backdrop-filter:blur(15px);
+    border-radius:30px;
+    padding:35px;
+    box-shadow:
+        0 10px 40px rgba(0,0,0,.08);
+    min-height:260px;
+    height:auto;
+
+    overflow:visible;
+
+}
+
+.result-title{
+    font-size:2.5rem;
+    color:#0078C3;
+    margin-bottom:20px;
+    font-weight:900;
+    animation:pop .5s ease;
+}
+
+.result-text{
+    line-height:2;
+    font-size:1.08rem;
+}
+
+@keyframes pop{
+    0%{
+        transform:scale(.5);
+        opacity:0;
+    }
+    100%{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
+/* おみくじ紙 */
+
+.paper{
+
+    width:100%;
+
+    background:white;
+
+    border-radius:24px;
+
+    padding:40px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.12);
+
+    opacity:0;
+
+    margin:auto;
+
+}
+
+.paper.show{
+    animation:
+        paperDrop .8s ease forwards;
+}
+
+@keyframes paperDrop{
+
+    0%{
+        opacity:0;
+        transform:
+            translateY(-80px)
+            rotate(-5deg)
+            scale(.95);
+    }
+
+    100%{
+        opacity:1;
+        transform:
+            translateY(0)
+            rotate(0deg)
+            scale(1);
+    }
+
+}
+
+/* ボタン */
+
+button{
+    margin-top:35px;
+    border:none;
+    padding:16px 42px;
+    border-radius:999px;
+    font-size:1.15rem;
+    font-weight:bold;
+    cursor:pointer;
+    color:white;
+    background:
+        linear-gradient(
+            135deg,
+            #0078C3,
+            #00B4FF
+        );
+    box-shadow:
+        0 10px 25px rgba(0,120,195,.3);
+    transition:.25s;
+}
+
+button:hover{
+    transform:
+        translateY(-2px)
+        scale(1.03);
+}
+
+button:disabled{
+    opacity:.5;
+}
+
+/* 花火 */
+
+.firework{
+    position:absolute;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:gold;
+    animation:firework 1.5s ease-out forwards;
+    z-index:2;
+}
+
+@keyframes firework{
+    0%{
+        opacity:1;
+        transform:scale(0);
+    }
+    100%{
+        opacity:0;
+        transform:scale(12);
+    }
+}
+
+/* 桜 */
+
+.sakura{
+    position:absolute;
+    top:-20px;
+    font-size:22px;
+    animation:sakuraFall linear forwards;
+    z-index:1;
+}
+
+@keyframes sakuraFall{
+    0%{
+        transform:
+            translateY(-20px)
+            rotate(0deg);
+        opacity:1;
+    }
+    100%{
+        transform:
+            translateY(110vh)
+            rotate(360deg);
+        opacity:0;
+    }
+}
+
+.loading{
+    font-size:1.2rem;
+    color:#0078C3;
+    animation:pulse 1.2s infinite;
+}
+
+@keyframes pulse{
+    0%{opacity:.3;}
+    50%{opacity:1;}
+    100%{opacity:.3;}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- タイトル -->
+    <h1>🎴 総合学域群  移行運おみくじ 🎴</h1>
+
+    <!-- 上部おみくじ -->
+    <div class="top-omikuji">
+
+        <img
+            src="omikuji.png"
+            class="omikuji-icon"
+        >
+
+        <img
+            src="omikuji.png"
+            class="omikuji-icon"
+        >
+
+    </div>
+
+    <!-- キャラクター -->
+    <div class="character-area" id="stage">
+
+    <img
+        src="shiro_omikuji.png.png"
+        id="character"
+        class="character"
+    >
+
+</div>
+
+    <!-- 結果 -->
+    <div class="result-box" id="resultBox">
+
+        <div id="paper" class="paper"></div>
+
+        <p style="font-size:1.1rem;">
+            ボタンを押して、おみくじを引こう！
+        </p>
+
+    </div>
+
+    <!-- ボタン -->
+    <button
+        id="drawButton"
+        onclick="drawOmikuji()"
+    >
+        おみくじを引く
+    </button>
+
+</div>
+
+<script>
+
+/* おみくじ */
+
+const fortunes = [
+
+{
+unsei:"超大吉",
+msg:"あなたの未来はキラキラまぶしい！",
+action:"学類の先輩におすすめ授業を聞いてみよう",
+lucky:"シラバス"
+},
+
+{
+unsei:"超大吉",
+msg:"やってみたい、と思ったことは、あなたの未来からのメッセージ",
+action:"ふだん行かないエリアで昼休みを過ごしてみよう",
+lucky:"学類外の友達"
+},
+
+{
+unsei:"超大吉",
+msg:"思い切って話しかけた相手が、将来の仲間になるかも",
+action:"昼休みに隣の人と会話してみよう",
+lucky:"友達の一言"
+},
+
+{
+unsei:"大吉",
+msg:"新しい挑戦があなたを待っています",
+action:"気になる授業はとにかく履修してみよう",
+lucky:"マルハバンのランチ"
+},
+
+{
+unsei:"吉",
+msg:"ひらめきは歩いているときにやってくる。まず歩こう",
+action:"新しい文房具を使ってみよう",
+lucky:"青いボールペン"
+},
+
+{
+unsei:"中吉",
+msg:"変化を楽しむ心が、運を引き寄せます",
+action:"新しい話題に耳を傾けてみよう",
+lucky:"初めての授業"
+},
+
+{
+unsei:"小吉",
+msg:"小さな努力があとで効いてくる！",
+action:"心配なことは、ASC専門スタッフに聞いてみよう",
+lucky:"ASC専門スタッフ"
+},
+
+{
+unsei:"凶",
+msg:"凶が出た？今が底、あとは上がるだけ！",
+action:"友達にありがとうを伝えてみよう",
+lucky:"ほっとする笑顔"
+}
+
+];
+
+/* 花火 */
+
+function createFireworks(){
+
+    const stage =
+        document.getElementById("stage");
+
+    for(let i=0;i<14;i++){
+
+        const fw =
+            document.createElement("div");
+
+        fw.classList.add("firework");
+
+        fw.style.left =
+            Math.random()*100 + "%";
+
+        fw.style.top =
+            Math.random()*80 + "%";
+
+        stage.appendChild(fw);
+
+        setTimeout(()=>{
+            fw.remove();
+        },1500);
+
+    }
+
+}
+
+/* 桜 */
+
+function createSakura(){
+
+    for(let i=0;i<20;i++){
+
+        const sakura =
+            document.createElement("div");
+
+        sakura.classList.add("sakura");
+
+        sakura.innerHTML = "🌸";
+
+        sakura.style.left =
+            Math.random()*100 + "vw";
+
+        sakura.style.animationDuration =
+            (Math.random()*4+4)+"s";
+
+        document.body.appendChild(sakura);
+
+        setTimeout(()=>{
+            sakura.remove();
+        },7000);
+
+    }
+
+}
+
+/* おみくじ */
+
+function drawOmikuji(){
+
+    const result =
+        fortunes[
+            Math.floor(
+                Math.random()*fortunes.length
+            )
+        ];
+
+    const resultBox =
+        document.getElementById("resultBox");
+
+    const character =
+        document.getElementById("character");
+
+    const button =
+        document.getElementById("drawButton");
+
+    button.disabled = true;
+
+    character.classList.add("shake");
+
+    character.classList.remove("gold");
+
+    /* まずローディング表示 */
+
+    resultBox.innerHTML = `
+
+        <div class="loading">
+            しろまめがおみくじを振っています・・・
+        </div>
+
+    `;
+
+    createSakura();
+
+    setTimeout(()=>{
+
+        character.classList.remove("shake");
+
+        /* 超大吉演出 */
+
+        if(result.unsei==="超大吉"){
+
+            character.classList.add("gold");
+
+            createFireworks();
+
+        }
+
+        /* ★ここで完全に置換する */
+
+        resultBox.innerHTML = `
+
+            <div class="paper show">
+
+                <div class="result-title">
+                    ✨ ${result.unsei} ✨
+                </div>
+
+                <div class="result-text">
+
+                    <p>${result.msg}</p>
+
+                    <br>
+
+                    <p>
+                        <strong>
+                        おすすめアクション
+                        </strong><br>
+                        ${result.action}
+                    </p>
+
+                    <br>
+
+                    <p>
+                        <strong>
+                        ラッキーアイテム
+                        </strong><br>
+                        ${result.lucky}
+                    </p>
+
+                </div>
+
+            </div>
+
+        `;
+
+        button.disabled = false;
+
+    },2200);
+
+}
+</script>
+
+</body>
+</html>
